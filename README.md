@@ -10,7 +10,6 @@ Certifique-se de ter instalado:
 - [Node.js](https://nodejs.org/) (recomendado: versão 14 ou superior)
 - [Yarn](https://classic.yarnpkg.com/lang/en/) ou npm
 - [React Native CLI](https://reactnative.dev/docs/environment-setup)
-- Android Studio (para Android) ou Xcode (para iOS)
 
 > ⚠️ Siga as instruções oficiais para preparar seu ambiente:
 > [Guia oficial React Native](https://reactnative.dev/docs/environment-setup)  
