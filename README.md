@@ -1,1 +1,26 @@
-# myfetus-app
+# myFetus 
+## Começando
+
+Essas instruções vão te ajudar a rodar o projeto React Native localmente.
+
+### Pré-requisitos
+
+Certifique-se de ter instalado:
+
+- [Node.js](https://nodejs.org/) (recomendado: versão 14 ou superior)
+- [Yarn](https://classic.yarnpkg.com/lang/en/) ou npm
+- [React Native CLI](https://reactnative.dev/docs/environment-setup)
+- Android Studio (para Android) ou Xcode (para iOS)
+
+> ⚠️ Siga as instruções oficiais para preparar seu ambiente:
+> [Guia oficial React Native](https://reactnative.dev/docs/environment-setup)  
+> Escolha "React Native CLI" e selecione o sistema operacional correto.
+
+### Instalando dependências
+
+```bash
+git clone https://github.com/myfetus/myfetus-app.git
+cd myfetus-app
+yarn install
+# ou
+npm install
