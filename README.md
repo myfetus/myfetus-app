@@ -15,6 +15,9 @@ Certifique-se de ter instalado:
 > [Guia oficial React Native](https://reactnative.dev/docs/environment-setup)  
 > Escolha "React Native CLI" e selecione o sistema operacional correto.
 
+- [Expo Go para Android](https://play.google.com/store/apps/details?id=host.exp.exponent&referrer=www)
+- [Expo Go para IOS](https://itunes.apple.com/app/apple-store/id982107779)
+
 ### Instalando dependências
 
 ```bash
