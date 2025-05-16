@@ -24,7 +24,7 @@
 
 ## 2. Arquivo `.env` no projeto
 
-No diretório raiz do projeto (`myFetus`), crie um arquivo chamado `.env` com o seguinte conteúdo:
+No diretório raiz do projeto (`myFetus`), crie um arquivo chamado `.env` com o seguinte conteúdo e suas respectivas informações:
 
 ```env
 PG_USER=myuser
