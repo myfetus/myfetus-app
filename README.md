@@ -26,3 +26,6 @@ cd myfetus-app
 yarn install
 # ou
 npm install
+
+### [Configurando a database](https://github.com/myfetus/myfetus-app/tree/backend/myFetus/backend/PostgresQL.md)
+
