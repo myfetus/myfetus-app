@@ -10,4 +10,7 @@ const client = new Client({
   password: process.env.PG_PASSWORD,
   port: process.env.PG_PORT,
 });
+
 client.connect();
+
+module.exports = client;
