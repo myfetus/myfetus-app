@@ -1,61 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const client = require('../backend');
+const userController = require('../controllers/userController');
 
-router.post('/', async (req, res) => {
-    const {name, email, password, birthdate} = req.body;
-    try {
-        const result = await client.query(
-            'INSERT INTO users (name, email, password, birthdate) VALUES ($1, $2, $3, $4) RETURNING *',
-            [name, email, password, birthdate]
-        );
-        res.status(201).json(result.rows[0]);
-    } catch (err) {
-        res.status(500).json({error: err.message});
-    }
-});
-
-router.get('/', async (req, res) => {
-    try {
-        const result = await client.query('SELECT * FROM users');
-        res.json(result.rows);
-    } catch (err) {
-        res.status(500).json({error: err.message});
-    }
-});
-
-router.get('/:id', async (req, res) => {
-    try {
-        const result = await client.query('SELECT * FROM users WHERE id = $1', [req.params.id]);
-        if(result.rows.length === 0) return res.status(404).send('Usuário não encontrado');
-        res.json(result.rows[0]);
-    } catch (err) {
-        res.status(500).json({error: err.message});
-    }
-});
-
-router.put('/:id', async (req, res) => {
-    const {name, email, password, birthdate} = req.body;
-    try {
-        const result = await client.query(
-            'UPDATE users SET name = $1, email = $2, password = $3, birthdate = $4 WHERE id = $5 RETURNING *',
-            [name, email, password, birthdate, req.params.id]
-        );
-        if (result.rows.lenght === 0) return res.status(404).send('Usuário não encontrado');
-        res.json(result.rows[0]);
-    } catch (err) {
-        res.status(500).json({error: err.message});
-    }
-});
-
-router.delete('/:id', async (req, res) => {
-    try {
-        const result = await client.query('DELETE FROM users WHERE id = $1 RETURNING *', [req.params.id]);
-        if (result.rows.lenght === 0) return res.status(404).send('Usuário não encontrado');
-        res.send('Usuário deletado com sucesso');
-    } catch (err) {
-        res.status(500).json({error: err.message})
-    }
-});
+router.post('/', userController.createUser);
+router.get('/', userController.getUsers);
+router.get('/:id', userController.getUserById);
+router.put('/:id', userController.updateUser);
+router.delete('/:id', userController.deleteUser);
 
 module.exports = router;
