@@ -9,6 +9,7 @@ export default function Cadastro() {
   const [dataNascimento, setDataNascimento] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const formatarData = (text: string) => {
@@ -28,7 +29,7 @@ export default function Cadastro() {
     return formatted;
   };
 
-  const handleCadastro = () => {
+  const handleCadastro = async () => {
     if (!nome || !email || !dataNascimento || !senha || !confirmarSenha) {
       Alert.alert('Erro', 'Preencha todos os campos');
       return;
@@ -39,8 +40,38 @@ export default function Cadastro() {
       return;
     }
 
-    console.log('Cadastro enviado:', { nome, email, dataNascimento, senha });
-    Alert.alert('Sucesso', 'Cadastro realizado com sucesso!');
+    try {
+      setLoading(true);
+
+      // Formata a data para o formato YYYY-MM-DD
+      const [dia, mes, ano] = dataNascimento.split('/');
+      const dataFormatada = `${ano}-${mes}-${dia}`;
+
+      const response = await fetch('http://localhost:3000/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: nome,
+          email: email,
+          password: senha,
+          birthdate: dataFormatada
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Erro ao criar conta');
+      }
+
+      Alert.alert('Sucesso', 'Cadastro realizado com sucesso!');
+      router.push('/login');
+    } catch (error) {
+      Alert.alert('Erro', error instanceof Error ? error.message : 'Erro ao criar conta');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleVoltarLogin = () => {
@@ -64,6 +95,7 @@ export default function Cadastro() {
           onChangeText={setNome}
           style={[styles.input, { marginTop: 20 }]}
           placeholderTextColor="#f9a9a7"
+          editable={!loading}
         />
         <TextInput
           placeholder="E-mail"
@@ -73,6 +105,7 @@ export default function Cadastro() {
           keyboardType="email-address"
           autoCapitalize="none"
           placeholderTextColor="#f9a9a7"
+          editable={!loading}
         />
         <TextInput
           placeholder="Data de Nascimento (DD/MM/AAAA)"
@@ -82,6 +115,7 @@ export default function Cadastro() {
           keyboardType="numeric"
           maxLength={10}
           placeholderTextColor="#f9a9a7"
+          editable={!loading}
         />
         <TextInput
           placeholder="Senha"
@@ -90,6 +124,7 @@ export default function Cadastro() {
           secureTextEntry
           style={styles.input}
           placeholderTextColor="#f9a9a7"
+          editable={!loading}
         />
         <TextInput
           placeholder="Confirmar Senha"
@@ -98,13 +133,20 @@ export default function Cadastro() {
           secureTextEntry
           style={styles.input}
           placeholderTextColor="#f9a9a7"
+          editable={!loading}
         />
 
-        <TouchableOpacity style={styles.loginButton} onPress={handleCadastro}>
-          <Text style={styles.loginText}>Cadastrar</Text>
+        <TouchableOpacity 
+          style={[styles.loginButton, loading && styles.loginButtonDisabled]} 
+          onPress={handleCadastro}
+          disabled={loading}
+        >
+          <Text style={styles.loginText}>
+            {loading ? 'Cadastrando...' : 'Cadastrar'}
+          </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={handleVoltarLogin}>
+        <TouchableOpacity onPress={handleVoltarLogin} disabled={loading}>
           <Text style={styles.createAccountText}>Voltar para Login</Text>
         </TouchableOpacity>
       </View>
@@ -169,6 +211,9 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     marginBottom: 10
+  },
+  loginButtonDisabled: {
+    backgroundColor: "#f9a9a7aa",
   },
   loginText: {
     color: "#fff",
