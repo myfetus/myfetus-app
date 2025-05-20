@@ -1,5 +1,7 @@
-import { View, Text, TextInput, Button, StyleSheet, Alert, Image, StatusBar } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import { useState } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 
 export default function Cadastro() {
   const [nome, setNome] = useState('');
@@ -7,6 +9,7 @@ export default function Cadastro() {
   const [dataNascimento, setDataNascimento] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
+  const router = useRouter();
 
   const formatarData = (text: string) => {
     const cleaned = text.replace(/\D/g, '');
@@ -40,107 +43,145 @@ export default function Cadastro() {
     Alert.alert('Sucesso', 'Cadastro realizado com sucesso!');
   };
 
-  return (
-    <>
-      <StatusBar hidden={true} />
-      <View style={styles.container}>
-        <Text style={styles.tituloApp}>My Fetus</Text>
+  const handleVoltarLogin = () => {
+    router.push('/login');
+  };
 
+  return (
+    <LinearGradient
+      colors={["#cce5f6", "#f8cde9"]}
+      style={styles.container}
+    >
+      <View style={styles.formBox}>
         <Image
-          source={require('@/assets/images/ilustracao-de-feto-desenhado-a-mao_23-2149213666.avif')}
-          style={styles.imagem}
+          source={require("../assets/images/fetus-heart.png")}
+          style={styles.heartImage}
           resizeMode="contain"
         />
-
-        <Text style={styles.titulo}>Cadastro</Text>
-
         <TextInput
           placeholder="Nome"
-          placeholderTextColor="#f9a9a8"
-          style={styles.input}
           value={nome}
           onChangeText={setNome}
+          style={[styles.input, { marginTop: 20 }]}
+          placeholderTextColor="#f9a9a7"
         />
         <TextInput
-          placeholder="Email"
-          placeholderTextColor="#f9a9a8"
-          style={styles.input}
+          placeholder="E-mail"
           value={email}
           onChangeText={setEmail}
+          style={styles.input}
           keyboardType="email-address"
+          autoCapitalize="none"
+          placeholderTextColor="#f9a9a7"
         />
         <TextInput
           placeholder="Data de Nascimento (DD/MM/AAAA)"
-          placeholderTextColor="#f9a9a8"
-          style={styles.input}
           value={dataNascimento}
           onChangeText={(text) => setDataNascimento(formatarData(text))}
+          style={styles.input}
           keyboardType="numeric"
           maxLength={10}
+          placeholderTextColor="#f9a9a7"
         />
         <TextInput
           placeholder="Senha"
-          placeholderTextColor="#f9a9a8"
-          style={styles.input}
           value={senha}
           onChangeText={setSenha}
           secureTextEntry
+          style={styles.input}
+          placeholderTextColor="#f9a9a7"
         />
         <TextInput
           placeholder="Confirmar Senha"
-          placeholderTextColor="#f9a9a8"
-          style={styles.input}
           value={confirmarSenha}
           onChangeText={setConfirmarSenha}
           secureTextEntry
+          style={styles.input}
+          placeholderTextColor="#f9a9a7"
         />
 
-        <View style={styles.botaoContainer}>
-          <Button title="Cadastrar" onPress={handleCadastro} color="#87CEEB" />
-        </View>
+        <TouchableOpacity style={styles.loginButton} onPress={handleCadastro}>
+          <Text style={styles.loginText}>Cadastrar</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleVoltarLogin}>
+          <Text style={styles.createAccountText}>Voltar para Login</Text>
+        </TouchableOpacity>
       </View>
-    </>
+      <View style={styles.footerContainer}>
+        <Image
+          source={require("../assets/images/poli-upe-logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 30,
+    
+  },
+  footerContainer: {
+    width: "100%",
+    height: 100,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20
+  },
+  formBox: {
+    backgroundColor: "rgba(255,255,255,0.3)",
+    borderRadius: 20,
     padding: 20,
-    justifyContent: 'center',
-    backgroundColor: '#ffd7e0',
+    width: "100%",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#fff",
+    paddingVertical: 40
+    
   },
-  tituloApp: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  imagem: {
-    width: 150,
-    height: 150,
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-  titulo: {
-    fontSize: 24,
-    marginBottom: 20,
-    textAlign: 'center',
-    fontWeight: 'bold',
-    color: '#333',
+  heartImage: {
+    width: 120,
+    height: 120,
+    position: "absolute",
+    top: -60,
+    zIndex: 3,
   },
   input: {
-    backgroundColor: '#fff',
-    marginBottom: 15,
-    padding: 12,
-    borderRadius: 25, // mais arredondado
-    borderColor: '#ccc',
-    borderWidth: 1,
-    color: '#333',
-  },
-  botaoContainer: {
+    backgroundColor: "#fff",
     borderRadius: 25,
-    overflow: 'hidden', // necessário para arredondar o botão
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    width: "100%",
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: "#fff"
   },
+  loginButton: {
+    backgroundColor: "#f9a9a7",
+    paddingVertical: 12,
+    borderRadius: 25,
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 10
+  },
+  loginText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16
+  },
+  createAccountText: {
+    color: "#20B2AA",
+    fontWeight: "bold",
+    fontSize: 14
+  },
+  logo: {
+    width: 240,
+    height: 80
+  }
 });

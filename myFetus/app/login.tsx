@@ -11,7 +11,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 
-export default function LoginScreen(): JSX.Element {
+export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const router = useRouter();
@@ -22,8 +22,7 @@ export default function LoginScreen(): JSX.Element {
   };
 
   const handleCreateAccount = () => {
-    console.log("Ir para criar conta");
-    // router.push("/signup");
+    router.push("/cadastro");
   };
 
   return (
@@ -31,50 +30,55 @@ export default function LoginScreen(): JSX.Element {
       colors={["#cce5f6", "#f8cde9"]}
       style={styles.container}
     >
-      <Image
-        source={require("../assets/images/myfetus-logo.png")} // coloque o nome correto do seu arquivo aqui
-        style={styles.logoMain}
-        resizeMode="contain"
-      />
-
-      <Image
-        source={require("../assets/images/fetus-heart.png")} // coloque esta imagem na pasta assets
-        style={styles.heartImage}
-        resizeMode="contain"
-      />
-
-      <View style={styles.formBox}>
-        <TextInput
-          placeholder="E-mail"
-          value={email}
-          onChangeText={setEmail}
-          style={[styles.input, { marginTop:60}]}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          placeholderTextColor="#f9a9a7"
+      <View style={styles.headerContainer}>
+        <Image
+          source={require("../assets/images/myfetus-logo.png")}
+          style={styles.logoMain}
+          resizeMode="contain"
         />
-        <TextInput
-          placeholder="Senha"
-          value={senha}
-          onChangeText={setSenha}
-          secureTextEntry
-          style={styles.input}
-          placeholderTextColor="#f9a9a7"
-        />
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-          <Text style={styles.loginText}>Login</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={handleCreateAccount}>
-          <Text style={styles.createAccountText}>Crie uma conta</Text>
-        </TouchableOpacity>
       </View>
 
-      <Image
-        source={require("../assets/images/poli-upe-logo.png")} // coloque esta imagem na pasta assets
-        style={styles.logo}
-        resizeMode="contain"
-      />
+      <View style={styles.contentContainer}>
+        <View style={styles.formBox}>
+          <Image
+            source={require("../assets/images/fetus-heart.png")}
+            style={styles.heartImage}
+            resizeMode="contain"
+          />
+          <TextInput
+            placeholder="E-mail"
+            value={email}
+            onChangeText={setEmail}
+            style={[styles.input, { marginTop:60}]}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            placeholderTextColor="#f9a9a7"
+          />
+          <TextInput
+            placeholder="Senha"
+            value={senha}
+            onChangeText={setSenha}
+            secureTextEntry
+            style={styles.input}
+            placeholderTextColor="#f9a9a7"
+          />
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <Text style={styles.loginText}>Login</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={handleCreateAccount}>
+            <Text style={styles.createAccountText}>Crie uma conta</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.footerContainer}>
+        <Image
+          source={require("../assets/images/poli-upe-logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      </View>
     </LinearGradient>
   );
 }
@@ -83,22 +87,40 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 30
   },
+  headerContainer: {
+    width: "100%",
+    height: 200,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 40
+  },
+  contentContainer: {
+    flex: 1,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative"
+  },
+  footerContainer: {
+    width: "100%",
+    height: 100,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20
+  },
   logoMain: {
-    position: 'absolute',
-    top: 80,
-    width: 250, // ajuste conforme o tamanho da logo
+    width: 250,
     height: 160,
-    alignSelf: "center", // Centraliza horizontalmente
-    zIndex: 2,           // Garante que fique acima dos outros
+    alignSelf: "center"
   },
   heartImage: {
     width: 120,
     height: 120,
     position: "absolute",
-    top: 250, // ajuste conforme necessário
+    top: -60,
     zIndex: 3,
   },
   formBox: {
@@ -109,8 +131,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 80,
     marginBottom: 30,
-    borderWidth: 1,              // Espessura da borda
-    borderColor: "#fff",         // Cor branca
+    borderWidth: 1,
+    borderColor: "#fff",
   },
   input: {
     backgroundColor: "#fff",
@@ -142,8 +164,6 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 240,
-    height: 80,
-    position: "absolute",
-    bottom: 20
+    height: 80
   }
 });
