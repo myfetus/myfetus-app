@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ActivityIndicator } from 'react-native';
 import { useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -10,7 +10,64 @@ export default function Cadastro() {
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
   const router = useRouter();
+
+  const validarEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const validarData = (data: string) => {
+    const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+    if (!regex.test(data)) return false;
+
+    const [dia, mes, ano] = data.split('/').map(Number);
+    const dataObj = new Date(ano, mes - 1, dia);
+    
+    return dataObj.getDate() === dia &&
+           dataObj.getMonth() === mes - 1 &&
+           dataObj.getFullYear() === ano;
+  };
+
+  const validarSenha = (senha: string) => {
+    return senha.length >= 6;
+  };
+
+  const validarFormulario = () => {
+    const novosErros: {[key: string]: string} = {};
+
+    if (!nome.trim()) {
+      novosErros.nome = 'Nome é obrigatório';
+    }
+
+    if (!email.trim()) {
+      novosErros.email = 'E-mail é obrigatório';
+    } else if (!validarEmail(email)) {
+      novosErros.email = 'E-mail inválido';
+    }
+
+    if (!dataNascimento) {
+      novosErros.dataNascimento = 'Data de nascimento é obrigatória';
+    } else if (!validarData(dataNascimento)) {
+      novosErros.dataNascimento = 'Data inválida';
+    }
+
+    if (!senha) {
+      novosErros.senha = 'Senha é obrigatória';
+    } else if (!validarSenha(senha)) {
+      novosErros.senha = 'A senha deve ter pelo menos 6 caracteres';
+    }
+
+    if (!confirmarSenha) {
+      novosErros.confirmarSenha = 'Confirme sua senha';
+    } else if (senha !== confirmarSenha) {
+      novosErros.confirmarSenha = 'As senhas não coincidem';
+    }
+
+    setErrors(novosErros);
+    return Object.keys(novosErros).length === 0;
+  };
 
   const formatarData = (text: string) => {
     const cleaned = text.replace(/\D/g, '');
@@ -30,20 +87,13 @@ export default function Cadastro() {
   };
 
   const handleCadastro = async () => {
-    if (!nome || !email || !dataNascimento || !senha || !confirmarSenha) {
-      Alert.alert('Erro', 'Preencha todos os campos');
-      return;
-    }
-
-    if (senha !== confirmarSenha) {
-      Alert.alert('Erro', 'As senhas não coincidem');
+    if (!validarFormulario()) {
       return;
     }
 
     try {
       setLoading(true);
 
-      // Formata a data para o formato YYYY-MM-DD
       const [dia, mes, ano] = dataNascimento.split('/');
       const dataFormatada = `${ano}-${mes}-${dia}`;
 
@@ -60,15 +110,36 @@ export default function Cadastro() {
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Erro ao criar conta');
+        throw new Error(data.error || 'Erro ao criar conta');
       }
 
-      Alert.alert('Sucesso', 'Cadastro realizado com sucesso!');
-      router.push('/login');
+      Alert.alert(
+        'Sucesso!',
+        'Sua conta foi criada com sucesso! Você será redirecionado para a página de login.',
+        [
+          {
+            text: 'OK',
+            onPress: () => router.push('/login')
+          }
+        ]
+      );
     } catch (error) {
-      Alert.alert('Erro', error instanceof Error ? error.message : 'Erro ao criar conta');
+      let mensagemErro = 'Erro ao criar conta';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('email')) {
+          mensagemErro = 'Este e-mail já está cadastrado';
+        } else if (error.message.includes('network')) {
+          mensagemErro = 'Erro de conexão. Verifique sua internet';
+        } else {
+          mensagemErro = error.message;
+        }
+      }
+
+      Alert.alert('Erro', mensagemErro);
     } finally {
       setLoading(false);
     }
@@ -92,58 +163,84 @@ export default function Cadastro() {
         <TextInput
           placeholder="Nome"
           value={nome}
-          onChangeText={setNome}
-          style={[styles.input, { marginTop: 20 }]}
+          onChangeText={(text) => {
+            setNome(text);
+            setErrors(prev => ({...prev, nome: ''}));
+          }}
+          style={[styles.input, errors.nome && styles.inputError]}
           placeholderTextColor="#f9a9a7"
           editable={!loading}
         />
+        {errors.nome && <Text style={styles.errorText}>{errors.nome}</Text>}
+
         <TextInput
           placeholder="E-mail"
           value={email}
-          onChangeText={setEmail}
-          style={styles.input}
+          onChangeText={(text) => {
+            setEmail(text);
+            setErrors(prev => ({...prev, email: ''}));
+          }}
+          style={[styles.input, errors.email && styles.inputError]}
           keyboardType="email-address"
           autoCapitalize="none"
           placeholderTextColor="#f9a9a7"
           editable={!loading}
         />
+        {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+
         <TextInput
           placeholder="Data de Nascimento (DD/MM/AAAA)"
           value={dataNascimento}
-          onChangeText={(text) => setDataNascimento(formatarData(text))}
-          style={styles.input}
+          onChangeText={(text) => {
+            setDataNascimento(formatarData(text));
+            setErrors(prev => ({...prev, dataNascimento: ''}));
+          }}
+          style={[styles.input, errors.dataNascimento && styles.inputError]}
           keyboardType="numeric"
           maxLength={10}
           placeholderTextColor="#f9a9a7"
           editable={!loading}
         />
+        {errors.dataNascimento && <Text style={styles.errorText}>{errors.dataNascimento}</Text>}
+
         <TextInput
           placeholder="Senha"
           value={senha}
-          onChangeText={setSenha}
+          onChangeText={(text) => {
+            setSenha(text);
+            setErrors(prev => ({...prev, senha: ''}));
+          }}
           secureTextEntry
-          style={styles.input}
+          style={[styles.input, errors.senha && styles.inputError]}
           placeholderTextColor="#f9a9a7"
           editable={!loading}
         />
+        {errors.senha && <Text style={styles.errorText}>{errors.senha}</Text>}
+
         <TextInput
           placeholder="Confirmar Senha"
           value={confirmarSenha}
-          onChangeText={setConfirmarSenha}
+          onChangeText={(text) => {
+            setConfirmarSenha(text);
+            setErrors(prev => ({...prev, confirmarSenha: ''}));
+          }}
           secureTextEntry
-          style={styles.input}
+          style={[styles.input, errors.confirmarSenha && styles.inputError]}
           placeholderTextColor="#f9a9a7"
           editable={!loading}
         />
+        {errors.confirmarSenha && <Text style={styles.errorText}>{errors.confirmarSenha}</Text>}
 
         <TouchableOpacity 
           style={[styles.loginButton, loading && styles.loginButtonDisabled]} 
           onPress={handleCadastro}
           disabled={loading}
         >
-          <Text style={styles.loginText}>
-            {loading ? 'Cadastrando...' : 'Cadastrar'}
-          </Text>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.loginText}>Cadastrar</Text>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleVoltarLogin} disabled={loading}>
@@ -167,7 +264,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 30,
-    
   },
   footerContainer: {
     width: "100%",
@@ -185,7 +281,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#fff",
     paddingVertical: 40
-    
   },
   heartImage: {
     width: 120,
@@ -200,9 +295,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 10,
     width: "100%",
-    marginBottom: 15,
+    marginBottom: 5,
     borderWidth: 1,
     borderColor: "#fff"
+  },
+  inputError: {
+    borderColor: '#ff6b6b',
+    borderWidth: 1,
+  },
+  errorText: {
+    color: '#ff6b6b',
+    fontSize: 12,
+    marginBottom: 10,
+    alignSelf: 'flex-start',
+    marginLeft: 15,
   },
   loginButton: {
     backgroundColor: "#f9a9a7",
