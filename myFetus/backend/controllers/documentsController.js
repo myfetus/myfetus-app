@@ -38,7 +38,51 @@ const getDocuments = async (req, res) => {
   }
 };
 
+const getDocumentById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await client.query('SELECT * FROM documents WHERE id = $1', [id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Documento não encontrado.' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const deleteDocument = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const doc = await client.query('SELECT * FROM documents WHERE id = $1', [id]);
+
+    if (doc.rows.length === 0) {
+      return res.status(404).json({ error: 'Documento não encontrado.' });
+    }
+
+    const { filename } = doc.rows[0];
+
+    // Remover o arquivo do disco
+    const filePath = path.join(__dirname, '..', 'uploads', filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    await client.query('DELETE FROM documents WHERE id = $1', [id]);
+
+    res.json({ message: 'Documento removido com sucesso.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   uploadDocument,
   getDocuments,
+  getDocumentById,
+  deleteDocument
 };
