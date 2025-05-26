@@ -79,7 +79,7 @@ export default function GestationInfoScreen() {
   }, []);
 
   const handleContinue = () => {
-    router.replace('/login');
+    router.replace('/(tabs)');
   };
 
   const rotation = rotationAnim.interpolate({
