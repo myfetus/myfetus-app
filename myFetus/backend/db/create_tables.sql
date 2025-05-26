@@ -34,3 +34,14 @@ CREATE TABLE IF NOT EXISTS pregnancy_events (
   event_date DATE NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ -- Tabela de documentos da gestante
+CREATE TABLE IF NOT EXISTS pregnant_documents (
+  id SERIAL PRIMARY KEY,
+  pregnant_id INTEGER NOT NULL REFERENCES pregnants(id) ON DELETE CASCADE,
+  document_name VARCHAR(255) NOT NULL,
+  document_type VARCHAR(100),       -- tipo do documento (ex: RG, exame, laudo, receita)
+  file_path TEXT NOT NULL,           -- caminho do arquivo no servidor ou URL (se armazenar externamente)
+  uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
