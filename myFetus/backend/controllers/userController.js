@@ -1,5 +1,7 @@
 const client = require('../backend');
 
+// TODO: validação
+
 const createUser = async (req, res) => {
   const { name, email, password, birthdate } = req.body;
   try {
