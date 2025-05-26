@@ -28,7 +28,7 @@ const getDocuments = async (req, res) => {
     const { pregnant_id } = req.query;
 
     if (!pregnant_id){
-        return res.status(400).json({error; 'Parâmetro pregnant_id é obrigatório'})
+        return res.status(400).json({error: 'Parâmetro pregnant_id é obrigatório'})
     }
   try {
     const result = await client.query('SELECT * FROM documents WHERE pregnant_id = $1', [pregnant_id]);
