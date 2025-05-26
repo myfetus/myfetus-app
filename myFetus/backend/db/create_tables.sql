@@ -18,12 +18,19 @@ CREATE TABLE IF NOT EXISTS pregnants (
 );
 
 -- Tabela de gestações
+-- Um DEFAULT 0.00 significa nao disponivel
 CREATE TABLE IF NOT EXISTS pregnancies (
   id SERIAL PRIMARY KEY,
   pregnant_id INTEGER REFERENCES pregnants(id) ON DELETE CASCADE,
   weeks INTEGER NOT NULL,
   is_checked BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  dum DATE NOT NULL,
+  dpp DATE NOT NULL,
+  ccn FLOAT NOT NULL DEFAULT 0.00,
+  dgm FLOAT NOT NULL DEFAULT 0.00,
+  regularidade_do_ciclo BOOLEAN DEFAULT TRUE,
+  ig_ultrassonografia DATE NOT NULL
 );
 
 -- Tabela de eventos da gestação
@@ -45,3 +52,14 @@ CREATE TABLE IF NOT EXISTS pregnant_documents (
   uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- TODO Tabela de sintomas iniciais
+
+
+-- Medidas Fetais
+CREATE TABLE IF NOT EXISTS medidas_fetais (
+  ccn FLOAT NOT NULL DEFAULT 0.00,
+  crl FLOAT NOT NULL DEFAULT 0.00,
+  dgn FLOAT NOT NULL DEFAULT 0.00,
+  idade_gestacional_semanas INTEGER NOT NULL
+)
