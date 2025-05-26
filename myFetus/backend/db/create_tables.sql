@@ -9,3 +9,28 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Tabela de gestantes
+CREATE TABLE IF NOT EXISTS pregnants (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de gestações
+CREATE TABLE IF NOT EXISTS pregnancies (
+  id SERIAL PRIMARY KEY,
+  pregnant_id INTEGER REFERENCES pregnants(id) ON DELETE CASCADE,
+  weeks INTEGER NOT NULL,
+  is_checked BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de eventos da gestação
+CREATE TABLE IF NOT EXISTS pregnancy_events (
+  id SERIAL PRIMARY KEY,
+  pregnancy_id INTEGER REFERENCES pregnancies(id) ON DELETE CASCADE,
+  description TEXT NOT NULL,
+  event_date DATE NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
