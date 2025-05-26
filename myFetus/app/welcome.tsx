@@ -44,10 +44,13 @@ export default function WelcomeScreen() {
   };
 
   const handleDateSubmit = () => {
-    if (selectedDate.length === 10) { // Verifica se a data está completa (DD/MM/AAAA)
-      setTimeout(() => {
-        router.replace('/login');
-      }, 1000);
+    if (selectedDate.length === 10) {
+      const [day, month, year] = selectedDate.split('/');
+      const formattedDate = `${year}-${month}-${day}`;
+      router.push({
+        pathname: '/gestation-info',
+        params: { lastMenstruation: formattedDate }
+      });
     }
   };
 

@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@react-native-community/datetimepicker": "^8.4.0"
+    "@react-native-community/datetimepicker": "^8.4.0",
+    "react-native-svg": "^15.12.0"
   }
 }
