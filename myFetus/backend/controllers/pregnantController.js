@@ -1,4 +1,5 @@
 const client = require('../backend');
+const updateEntity = require('../utils/updateEntity');
 
 const createPregnant = async (req, res) => {
   const { user_id } = req.body;
@@ -22,4 +23,17 @@ const getPregnants = async (req, res) => {
   }
 };
 
-module.exports = { createPregnant, getPregnants };
+const updatePregnant = async (req, res) => {
+  try {
+    const updatedPregnant = await updateEntity('pregnants', req.params.id, req.body);
+    if (!updatedPregnant) return res.status(404).send('Gestante não encontrada');
+    res.json(updatedPregnant);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { 
+  createPregnant, 
+  getPregnants, 
+  updatePregnant };

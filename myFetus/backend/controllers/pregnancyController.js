@@ -1,4 +1,5 @@
 const client = require('../backend');
+const updateEntity = require('../utils/updateEntity');
 
 const createPregnancy = async (req, res) => {
   const { pregnant_id, weeks, is_checked = false } = req.body;
@@ -22,4 +23,17 @@ const getPregnancies = async (req, res) => {
   }
 };
 
-module.exports = { createPregnancy, getPregnancies };
+const updatePregnancy = async (req, res) => {
+  try {
+    const updatedPregnancy = await updateEntity('pregnancies', req.params.id, req.body);
+    if (!updatedPregnancy) return res.status(404).send('Gravidez não encontrada');
+    res.json(updatedPregnancy);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { 
+  createPregnancy, 
+  getPregnancies, 
+  updatePregnancy };

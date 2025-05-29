@@ -1,4 +1,5 @@
 const client = require('../backend');
+const updateEntity = require('../utils/updateEntity');
 
 const uploadDocument = async (req, res) => {
   try {
@@ -80,9 +81,20 @@ const deleteDocument = async (req, res) => {
   }
 };
 
+const updateDocument = async (req, res) => {
+  try {
+    const updatedDoc = await updateEntity('documents', req.params.id, req.body);
+    if (!updatedDoc) return res.status(404).send('Documento não encontrado');
+    res.json(updatedDoc);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   uploadDocument,
   getDocuments,
   getDocumentById,
-  deleteDocument
+  deleteDocument,
+  updateDocument
 };

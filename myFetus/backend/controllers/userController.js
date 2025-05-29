@@ -1,4 +1,5 @@
 const client = require('../backend');
+const updateEntity = require('../utils/updateEntity');
 
 // TODO: validação
 
@@ -35,14 +36,10 @@ const getUserById = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-  const { name, email, password, birthdate, is_active, role } = req.body;
   try {
-    const result = await client.query(
-      'UPDATE users SET name = $1, email = $2, password = $3, birthdate = $4, is_active = $5, role = $6, updated_at = CURRENT_TIMESTAMP WHERE id = $7 RETURNING *',
-      [name, email, password, birthdate, is_active, role, req.params.id]
-    );
-    if (result.rows.length === 0) return res.status(404).send('Usuário não encontrado');
-    res.json(result.rows[0]);
+    const updatedUser = await updateEntity('users', req.params.id, req.body);
+    if (!updatedUser) return res.status(404).send('Usuário não encontrado');
+    res.json(updatedUser);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

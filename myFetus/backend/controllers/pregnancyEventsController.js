@@ -1,4 +1,5 @@
 const client = require('../backend');
+const updateEntity = require('../utils/updateEntity');
 
 const createEvent = async (req, res) => {
   const { pregnancy_id, description, event_date } = req.body;
@@ -22,4 +23,17 @@ const getEvents = async (req, res) => {
   }
 };
 
-module.exports = { createEvent, getEvents };
+const updatePregnancyEvent = async (req, res) => {
+  try {
+    const updatedEvent = await updateEntity('pregnancy_events', req.params.id, req.body);
+    if (!updatedEvent) return res.status(404).send('Evento não encontrado');
+    res.json(updatedEvent);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { 
+  createEvent, 
+  getEvents, 
+  updatePregnancyEvent };
