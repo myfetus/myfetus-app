@@ -26,11 +26,13 @@ export default function HomeScreen() {
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
           <Text style={styles.title}>Minha Gestação</Text>
-          <Text style={styles.weekText}>Semana {gestationWeek}</Text>
+          <View style={styles.weekContainer}>
+            <Text style={styles.weekText}>Semana {gestationWeek}</Text>
+          </View>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Desenvolvimento do Bebê</Text>
+        <View style={styles.mainCard}>
+          <Text style={styles.mainCardTitle}>Desenvolvimento do Bebê</Text>
           <View style={styles.babyInfo}>
             <Image
               source={require('../../assets/images/fetus-heart.png')}
@@ -38,7 +40,10 @@ export default function HomeScreen() {
               resizeMode="contain"
             />
             <View style={styles.babyDetails}>
-              <Text style={styles.babySize}>Tamanho: {babySize}</Text>
+              <View style={styles.sizeContainer}>
+                <Text style={styles.sizeLabel}>Tamanho atual:</Text>
+                <Text style={styles.babySize}>{babySize}</Text>
+              </View>
               <Text style={styles.babyDescription}>
                 Seu bebê está se desenvolvendo rapidamente! Nesta fase, todos os órgãos principais já estão formados.
               </Text>
@@ -46,10 +51,10 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Próxima Consulta</Text>
+        <View style={styles.appointmentCard}>
+          <FontAwesome name="calendar" size={24} color="#20B2AA" />
           <View style={styles.appointmentInfo}>
-            <FontAwesome name="calendar" size={24} color="#20B2AA" />
+            <Text style={styles.appointmentTitle}>Próxima Consulta</Text>
             <Text style={styles.appointmentDate}>{nextAppointment}</Text>
           </View>
         </View>
@@ -84,10 +89,108 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#20B2AA',
   },
+  weekContainer: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
   weekText: {
     fontSize: width * 0.05,
+    color: '#20B2AA',
+    fontWeight: '600',
+  },
+  mainCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 25,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  mainCardTitle: {
+    fontSize: width * 0.055,
+    fontWeight: 'bold',
+    color: '#20B2AA',
+    marginBottom: 20,
+  },
+  babyInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  babyImage: {
+    width: width * 0.25,
+    height: width * 0.25,
+    marginRight: 20,
+  },
+  babyDetails: {
+    flex: 1,
+  },
+  sizeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  sizeLabel: {
+    fontSize: width * 0.04,
     color: '#666',
-    marginTop: 5,
+    marginRight: 8,
+  },
+  babySize: {
+    fontSize: width * 0.045,
+    fontWeight: '600',
+    color: '#20B2AA',
+  },
+  babyDescription: {
+    fontSize: width * 0.035,
+    color: '#666',
+    lineHeight: 22,
+  },
+  appointmentCard: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 20,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  appointmentInfo: {
+    marginLeft: 15,
+  },
+  appointmentTitle: {
+    fontSize: width * 0.035,
+    color: '#666',
+    marginBottom: 4,
+  },
+  appointmentDate: {
+    fontSize: width * 0.04,
+    fontWeight: '600',
+    color: '#20B2AA',
   },
   card: {
     backgroundColor: '#fff',
@@ -109,38 +212,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#20B2AA',
     marginBottom: 15,
-  },
-  babyInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  babyImage: {
-    width: width * 0.2,
-    height: width * 0.2,
-    marginRight: 15,
-  },
-  babyDetails: {
-    flex: 1,
-  },
-  babySize: {
-    fontSize: width * 0.04,
-    fontWeight: '500',
-    color: '#333',
-    marginBottom: 5,
-  },
-  babyDescription: {
-    fontSize: width * 0.035,
-    color: '#666',
-    lineHeight: 20,
-  },
-  appointmentInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  appointmentDate: {
-    fontSize: width * 0.04,
-    color: '#333',
-    marginLeft: 10,
   },
   tipsContainer: {
     marginTop: 5,
