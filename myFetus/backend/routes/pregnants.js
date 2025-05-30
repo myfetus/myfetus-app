@@ -4,6 +4,6 @@ const pregnantController = require('../controllers/pregnantController');
 
 router.post('/', pregnantController.createPregnant);
 router.get('/', pregnantController.getPregnants);
-router.put('/', pregnantController.updatePregnant)
+router.put('/:id', pregnantController.updatePregnant)
 
 module.exports = router;
