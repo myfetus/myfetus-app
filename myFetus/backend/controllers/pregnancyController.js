@@ -33,6 +33,28 @@ const updatePregnancy = async (req, res) => {
   }
 };
 
+const updateDPP = async (req, res) => {
+  try {
+    const dum = await client.query('SELECT dum FROM pregnancies');
+    const dpp = calculateDPPfromDUM(dum);
+    const updatedPregnancy = await updateEntity('pregnancies', dpp);
+    if (!updatedPregnancy) return res.status(404).send('Gravidez não encontrada');
+    res.json(updatedPregnancy);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+function calculateDPPfromDUM(dum) {
+  const dumDate = new Date(dum);
+  const dpp = new Date(dumDate);
+  dpp.setDate(dpp.getDate() + 1);
+  dpp.setMonth(dpp.getMonth() - 3);
+  dpp.getFullYear(dpp.getFullYear() + 1);
+
+  return dpp.toISOString().split('T')[0];
+}
+
 module.exports = { 
   createPregnancy, 
   getPregnancies, 
