@@ -11,12 +11,14 @@ const pregnancyEventsRoutes = require('./routes/pregnancyEvents');
 
 //documentos
 const documentsRoutes = require('./routes/documents');
+const medicoesRoutes = require('./routes/medicoes'); 
 
 app.use('/users', userRoutes);
 app.use('/pregnants', pregnantRoutes);
 app.use('/pregnancies', pregnancyRoutes);
 app.use('/pregnancyEvents', pregnancyEventsRoutes);
 app.use('/pregnantDocuments', documentsRoutes);
+app.use('/medicoes', medicoesRoutes); 
 
 app.listen(3000, () => {
     console.log('servidor rodando na porta 3000')
