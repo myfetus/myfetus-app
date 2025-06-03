@@ -12,6 +12,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
+import { calculateGestationWeek } from '../utils/gestationUtils';
 
 const { width, height } = Dimensions.get('window');
 
@@ -28,12 +29,10 @@ export default function GestationInfoScreen() {
 
   useEffect(() => {
     if (params.lastMenstruation) {
-      const lastMenstruation = new Date(params.lastMenstruation as string);
-      const today = new Date();
-      const diffTime = Math.abs(today.getTime() - lastMenstruation.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      const weeks = Math.floor(diffDays / 7);
-      setGestationWeeks(weeks);
+      console.log('Gestation Info - Data última menstruação:', params.lastMenstruation);
+      const week = calculateGestationWeek(params.lastMenstruation as string);
+      console.log('Gestation Info - Semana calculada:', week);
+      setGestationWeeks(week);
     }
   }, [params.lastMenstruation]);
 
