@@ -10,7 +10,7 @@ export default function OutraGestacaoScreen() {
   const router = useRouter();
 
   const handleSubmit = () => {
-    router.push('/(tabs)'); // Substitua pela próxima tela do fluxo
+    router.push('/welcome');
   };
 
   return (

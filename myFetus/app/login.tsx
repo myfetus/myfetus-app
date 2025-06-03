@@ -18,7 +18,7 @@ export default function LoginScreen() {
 
   const handleLogin = () => {
     console.log("Fazer login com:", email, senha);
-    router.push("/welcome");
+    router.push("/outra-gestacao");
   };
 
   const handleCreateAccount = () => {
