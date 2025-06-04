@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,14 +9,78 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome } from '@expo/vector-icons';
+import { getLastPeriod, calculateGestationWeek, getBabySize, getBabyDescription } from '../../utils/gestationUtils';
 
 const { width, height } = Dimensions.get('window');
 
+// Mapeamento das imagens das semanas
+const fetusImages: { [key: string]: any } = {
+  '04': require('../../assets/images/Fetus_weeks_img/04-fetaldev-E-deeptan_4x3.jpg'),
+  '05': require('../../assets/images/Fetus_weeks_img/05-fetaldev-E-deeptan_4x3.jpg'),
+  '06': require('../../assets/images/Fetus_weeks_img/06-fetaldev-E-deeptan_4x3.jpg'),
+  '07': require('../../assets/images/Fetus_weeks_img/07-fetaldev-E-deeptan_4x3.jpg'),
+  '08': require('../../assets/images/Fetus_weeks_img/08-fetaldev-E-deeptan_4x3.jpg'),
+  '09': require('../../assets/images/Fetus_weeks_img/09-fetaldev-E-deeptan_4x3.jpg'),
+  '10': require('../../assets/images/Fetus_weeks_img/10-fetaldev-E-deeptan_4x3.jpg'),
+  '11': require('../../assets/images/Fetus_weeks_img/11-fetaldev-E-deeptan_4x3.jpg'),
+  '12': require('../../assets/images/Fetus_weeks_img/12-fetaldev-E-deeptan_4x3.jpg'),
+  '13': require('../../assets/images/Fetus_weeks_img/13-fetaldev-E-deeptan_4x3.jpg'),
+  '14': require('../../assets/images/Fetus_weeks_img/14-fetaldev-E-deeptan_4x3.jpg'),
+  '15': require('../../assets/images/Fetus_weeks_img/15-fetaldev-E-deeptan_4x3.jpg'),
+  '16': require('../../assets/images/Fetus_weeks_img/16-fetaldev-E-deeptan_4x3.jpg'),
+  '17': require('../../assets/images/Fetus_weeks_img/17-fetaldev-E-deeptan_4x3.jpg'),
+  '18': require('../../assets/images/Fetus_weeks_img/18-fetaldev-E-deeptan_4x3.jpg'),
+  '19': require('../../assets/images/Fetus_weeks_img/19-fetaldev-E-deeptan_4x3.jpg'),
+  '20': require('../../assets/images/Fetus_weeks_img/20-fetaldev-E-deeptan_4x3.jpg'),
+  '21': require('../../assets/images/Fetus_weeks_img/21-fetaldev-E-deeptan_4x3.jpg'),
+  '22': require('../../assets/images/Fetus_weeks_img/22-fetaldev-E-deeptan_4x3.jpg'),
+  '23': require('../../assets/images/Fetus_weeks_img/23-fetaldev-E-deeptan_4x3.jpg'),
+  '24': require('../../assets/images/Fetus_weeks_img/24-fetaldev-E-deeptan_4x3.jpg'),
+  '25': require('../../assets/images/Fetus_weeks_img/25-fetaldev-E-deeptan_4x3.jpg'),
+  '26': require('../../assets/images/Fetus_weeks_img/26-fetaldev-E-deeptan_4x3.jpg'),
+  '27': require('../../assets/images/Fetus_weeks_img/27-fetaldev-E-deeptan_4x3.jpg'),
+  '28': require('../../assets/images/Fetus_weeks_img/28-fetaldev-E-deeptan_4x3.jpg'),
+  '29': require('../../assets/images/Fetus_weeks_img/29-fetaldev-E-deeptan_4x3.jpg'),
+  '30': require('../../assets/images/Fetus_weeks_img/30-fetaldev-E-deeptan_4x3.jpg'),
+  '31': require('../../assets/images/Fetus_weeks_img/31-fetaldev-E-deeptan_4x3.jpg'),
+  '32': require('../../assets/images/Fetus_weeks_img/32-fetaldev-E-deeptan_4x3.jpg'),
+  '33': require('../../assets/images/Fetus_weeks_img/33-fetaldev-E-deeptan_4x3.jpg'),
+  '34': require('../../assets/images/Fetus_weeks_img/34-fetaldev-E-deeptan_4x3.jpg'),
+  '35': require('../../assets/images/Fetus_weeks_img/35-fetaldev-E-deeptan_4x3.jpg'),
+  '36': require('../../assets/images/Fetus_weeks_img/36-fetaldev-E-deeptan_4x3.jpg'),
+  '37': require('../../assets/images/Fetus_weeks_img/37-fetaldev-E-deeptan_4x3.jpg'),
+  '38': require('../../assets/images/Fetus_weeks_img/38-fetaldev-E-deeptan_4x3.jpg'),
+  '39': require('../../assets/images/Fetus_weeks_img/39-fetaldev-E-deeptan_4x3.jpg'),
+  '40': require('../../assets/images/Fetus_weeks_img/40-fetaldev-E-deeptan_4x3.jpg'),
+  '41': require('../../assets/images/Fetus_weeks_img/41-fetaldev-E-deeptan_4x3.jpg'),
+};
+
+const getFetusImage = (week: number) => {
+  const formattedWeek = week.toString().padStart(2, '0');
+  return fetusImages[formattedWeek];
+};
+
 export default function HomeScreen() {
-  // Dados de exemplo - em um app real, estes dados viriam de um estado global ou API
-  const gestationWeek = 12;
-  const babySize = 'Limão';
+  const [gestationWeek, setGestationWeek] = useState(0);
+  const [babySize, setBabySize] = useState('');
+  const [babyDescription, setBabyDescription] = useState('');
   const nextAppointment = '15/04/2024';
+
+  useEffect(() => {
+    const loadGestationData = async () => {
+      const lastPeriod = await getLastPeriod();
+      if (lastPeriod) {
+        console.log('Index - Data última menstruação:', lastPeriod);
+        const week = calculateGestationWeek(lastPeriod);
+        console.log('Index - Semana calculada:', week);
+        setGestationWeek(week);
+        setBabySize(getBabySize(week));
+        setBabyDescription(getBabyDescription(week));
+      }
+    };
+
+    loadGestationData();
+  }, []);
 
   return (
     <LinearGradient
@@ -34,18 +98,20 @@ export default function HomeScreen() {
         <View style={styles.mainCard}>
           <Text style={styles.mainCardTitle}>Desenvolvimento do Bebê</Text>
           <View style={styles.babyInfo}>
-            <Image
-              source={require('../../assets/images/fetus-heart.png')}
-              style={styles.babyImage}
-              resizeMode="contain"
-            />
+            <View style={styles.imageContainer}>
+              <Image
+                source={getFetusImage(gestationWeek)}
+                style={styles.babyImage}
+                resizeMode="contain"
+              />
+            </View>
             <View style={styles.babyDetails}>
               <View style={styles.sizeContainer}>
                 <Text style={styles.sizeLabel}>Tamanho atual:</Text>
                 <Text style={styles.babySize}>{babySize}</Text>
               </View>
               <Text style={styles.babyDescription}>
-                Seu bebê está se desenvolvendo rapidamente! Nesta fase, todos os órgãos principais já estão formados.
+                {babyDescription}
               </Text>
             </View>
           </View>
@@ -129,23 +195,46 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#20B2AA',
     marginBottom: 20,
+    textAlign: 'center',
   },
   babyInfo: {
-    flexDirection: 'row',
     alignItems: 'center',
   },
+  imageContainer: {
+    width: width * 0.7,
+    height: width * 0.7,
+    backgroundColor: '#f8f8f8',
+    borderRadius: width * 0.35,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+    overflow: 'hidden',
+  },
   babyImage: {
-    width: width * 0.25,
-    height: width * 0.25,
-    marginRight: 20,
+    width: width * 0.95,
+    height: width * 0.95,
+    borderRadius: width * 0.325,
   },
   babyDetails: {
-    flex: 1,
+    width: '100%',
+    alignItems: 'center',
   },
   sizeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 15,
+    backgroundColor: '#f0f9ff',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 15,
   },
   sizeLabel: {
     fontSize: width * 0.04,
@@ -161,6 +250,7 @@ const styles = StyleSheet.create({
     fontSize: width * 0.035,
     color: '#666',
     lineHeight: 22,
+    textAlign: 'center',
   },
   appointmentCard: {
     backgroundColor: '#fff',

@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { saveLastPeriod } from '../utils/gestationUtils';
 
 const { width, height } = Dimensions.get('window');
 
@@ -43,10 +44,12 @@ export default function WelcomeScreen() {
     setSelectedDate(formatted);
   };
 
-  const handleDateSubmit = () => {
-    if (selectedDate.length === 10) {
-      const [day, month, year] = selectedDate.split('/');
+  const handleSaveLastPeriod = async (date: string) => {
+    await saveLastPeriod(date);
+    if (date.length === 10) {
+      const [day, month, year] = date.split('/');
       const formattedDate = `${year}-${month}-${day}`;
+      console.log('Welcome - Data formatada para navegação:', formattedDate);
       router.push({
         pathname: '/gestation-info',
         params: { lastMenstruation: formattedDate }
@@ -106,7 +109,7 @@ export default function WelcomeScreen() {
                   styles.submitButton,
                   selectedDate.length !== 10 && styles.submitButtonDisabled
                 ]}
-                onPress={handleDateSubmit}
+                onPress={() => handleSaveLastPeriod(selectedDate)}
                 disabled={selectedDate.length !== 10}
               >
                 <Text style={styles.submitButtonText}>Confirmar</Text>
