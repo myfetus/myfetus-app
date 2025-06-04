@@ -9,47 +9,40 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome } from '@expo/vector-icons';
-import { calculateGestationWeek } from '../utils/gestationWeekCalculator';
+// import { calculateGestationWeek } from '../utils/gestationWeekCalculator';
 import { getChecklistForWeek, ChecklistItem } from '../data/checklistData';
+import { getLastPeriod, calculateGestationWeek, getBabySize, getBabyDescription } from '../../utils/gestationUtils';
 
 const { width, height } = Dimensions.get('window');
 
 export default function ChecklistScreen() {
-  // Exemplo de data da última menstruação (você deve pegar isso do estado global ou API)
-  const lastMenstruation = new Date('2025-03-01');
   const [currentWeek, setCurrentWeek] = useState(0);
   const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
 
   useEffect(() => {
-    const week = calculateGestationWeek(lastMenstruation);
-    setCurrentWeek(week);
-    const weekChecklist = getChecklistForWeek(week);
-    if (weekChecklist) {
-      setChecklistItems(weekChecklist.items.map(item => ({ ...item, completed: false })));
-    }
-  }, [lastMenstruation]);
+    const loadGestationData = async () => {
+      const lastPeriod = await getLastPeriod();
+      if (lastPeriod) {
+        console.log('Checklist - Data última menstruação:', lastPeriod);
+        const week = calculateGestationWeek(lastPeriod);
+        console.log('Checklist - Semana calculada:', week);
+        setCurrentWeek(week);
+        const weekChecklist = getChecklistForWeek(week);
+        if (weekChecklist) {
+          setChecklistItems(weekChecklist.items.map(item => ({ ...item, completed: false })));
+        }
+      }
+    };
+
+    loadGestationData();
+  }, []);
 
   const toggleItem = (id: string) => {
-    setChecklistItems(items =>
-      items.map(item =>
+    setChecklistItems(prevItems =>
+      prevItems.map(item =>
         item.id === id ? { ...item, completed: !item.completed } : item
       )
     );
-  };
-
-  const getIconForType = (type: string) => {
-    switch (type) {
-      case 'exam':
-        return 'hospital-o';
-      case 'consultation':
-        return 'stethoscope';
-      case 'test':
-        return 'flask';
-      case 'monitoring':
-        return 'heartbeat';
-      default:
-        return 'check-circle';
-    }
   };
 
   const completedCount = checklistItems.filter(item => item.completed).length;
@@ -79,22 +72,14 @@ export default function ChecklistScreen() {
               )}
             </View>
             <View style={styles.itemContent}>
-              <View style={styles.itemHeader}>
-                <FontAwesome 
-                  name={getIconForType(item.type)} 
-                  size={16} 
-                  color="#20B2AA" 
-                  style={styles.itemIcon}
-                />
-                <Text
-                  style={[
-                    styles.itemTitle,
-                    item.completed && styles.completedText,
-                  ]}
-                >
-                  {item.title}
-                </Text>
-              </View>
+              <Text
+                style={[
+                  styles.itemTitle,
+                  item.completed && styles.completedText,
+                ]}
+              >
+                {item.title}
+              </Text>
               {item.description && (
                 <Text
                   style={[
@@ -177,24 +162,15 @@ const styles = StyleSheet.create({
   itemContent: {
     flex: 1,
   },
-  itemHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  itemIcon: {
-    marginRight: 8,
-  },
   itemTitle: {
     fontSize: width * 0.035,
     color: '#333',
-    flex: 1,
     fontWeight: '600',
+    marginBottom: 4,
   },
   itemDescription: {
     fontSize: width * 0.03,
     color: '#666',
-    marginLeft: 24,
     lineHeight: 18,
   },
   completedText: {
@@ -218,7 +194,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#e0e0e0',
     borderRadius: 4,
     overflow: 'hidden',
-    width: '100%',
   },
   progress: {
     height: '100%',
