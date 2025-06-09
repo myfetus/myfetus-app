@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@react-native-community/datetimepicker": "^8.4.0",
+    "metro": "^0.82.4",
     "react-native-svg": "^15.12.0"
   }
 }

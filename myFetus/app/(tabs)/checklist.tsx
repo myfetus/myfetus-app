@@ -24,10 +24,10 @@ export default function ChecklistScreen() {
       const lastPeriod = await getLastPeriod();
       if (lastPeriod) {
         console.log('Checklist - Data última menstruação:', lastPeriod);
-        const week = calculateGestationWeek(lastPeriod);
-        console.log('Checklist - Semana calculada:', week);
-        setCurrentWeek(week);
-        const weekChecklist = getChecklistForWeek(week);
+        const result = calculateGestationWeek(lastPeriod);
+        console.log('Checklist - Semana calculada:', result.weeks);
+        setCurrentWeek(result.weeks);
+        const weekChecklist = getChecklistForWeek(result.weeks);
         if (weekChecklist) {
           setChecklistItems(weekChecklist.items.map(item => ({ ...item, completed: false })));
         }

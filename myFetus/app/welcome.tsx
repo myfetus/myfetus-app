@@ -8,17 +8,22 @@ import {
   TouchableOpacity,
   TextInput,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Alert,
+  Modal
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { saveLastPeriod } from '../utils/gestationUtils';
+import { saveLastPeriod, calculateGestationWeek } from '../utils/gestationUtils';
+import { FontAwesome } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState('');
+  const [showWarning, setShowWarning] = useState(false);
+  const [warningMessage, setWarningMessage] = useState('');
 
   const formatDate = (text: string) => {
     // Remove todos os caracteres não numéricos
@@ -45,16 +50,31 @@ export default function WelcomeScreen() {
   };
 
   const handleSaveLastPeriod = async (date: string) => {
-    await saveLastPeriod(date);
     if (date.length === 10) {
       const [day, month, year] = date.split('/');
       const formattedDate = `${year}-${month}-${day}`;
-      console.log('Welcome - Data formatada para navegação:', formattedDate);
+      
+      // Calcula as semanas de gestação
+      const result = calculateGestationWeek(formattedDate);
+      
+      // Se houver aviso, mostra a notificação e não permite avançar
+      if (result.warning) {
+        setWarningMessage(result.warning);
+        setShowWarning(true);
+        return;
+      }
+      
+      // Se não houver aviso, salva e avança
+      await saveLastPeriod(date);
       router.push({
         pathname: '/gestation-info',
         params: { lastMenstruation: formattedDate }
       });
     }
+  };
+
+  const handleContinue = () => {
+    setShowWarning(false);
   };
 
   return (
@@ -118,6 +138,32 @@ export default function WelcomeScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
+
+      <Modal
+        visible={showWarning}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowWarning(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.warningHeader}>
+              <FontAwesome name="exclamation-triangle" size={30} color="#FF6B6B" />
+              <Text style={styles.warningTitle}>Atenção</Text>
+            </View>
+            <Text style={styles.warningText}>{warningMessage}</Text>
+            <Text style={styles.warningSubtext}>
+              Por favor, verifique os dados antes de continuar
+            </Text>
+            <TouchableOpacity 
+              style={styles.warningButton}
+              onPress={handleContinue}
+            >
+              <Text style={styles.warningButtonText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </LinearGradient>
   );
 }
@@ -138,7 +184,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    // paddingTop: height * 0.1,
   },
   logo: {
     width: width * 0.7,
@@ -206,6 +251,57 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: '#fff',
     fontSize: width * 0.04,
+    fontWeight: '500',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    width: width * 0.8,
+    alignItems: 'center',
+  },
+  warningHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  warningTitle: {
+    fontSize: width * 0.06,
+    fontWeight: 'bold',
+    color: '#FF6B6B',
+    marginLeft: 10,
+  },
+  warningText: {
+    fontSize: width * 0.04,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 22,
+  },
+  warningButton: {
+    backgroundColor: '#FF6B6B',
+    paddingHorizontal: 30,
+    paddingVertical: 12,
+    borderRadius: 25,
+    width: '80%',
+    alignItems: 'center',
+  },
+  warningButtonText: {
+    color: '#fff',
+    fontSize: width * 0.04,
+    fontWeight: '500',
+  },
+  warningSubtext: {
+    fontSize: width * 0.035,
+    color: '#FF6B6B',
+    textAlign: 'center',
+    marginBottom: 20,
     fontWeight: '500',
   },
 }); 

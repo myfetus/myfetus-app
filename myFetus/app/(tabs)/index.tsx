@@ -71,11 +71,11 @@ export default function HomeScreen() {
       const lastPeriod = await getLastPeriod();
       if (lastPeriod) {
         console.log('Index - Data última menstruação:', lastPeriod);
-        const week = calculateGestationWeek(lastPeriod);
-        console.log('Index - Semana calculada:', week);
-        setGestationWeek(week);
-        setBabySize(getBabySize(week));
-        setBabyDescription(getBabyDescription(week));
+        const result = calculateGestationWeek(lastPeriod);
+        console.log('Index - Semana calculada:', result.weeks);
+        setGestationWeek(result.weeks);
+        setBabySize(getBabySize(result.weeks));
+        setBabyDescription(getBabyDescription(result.weeks));
       }
     };
 

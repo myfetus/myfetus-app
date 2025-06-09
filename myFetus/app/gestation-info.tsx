@@ -77,9 +77,9 @@ export default function GestationInfoScreen() {
   useEffect(() => {
     if (params.lastMenstruation) {
       console.log('Gestation Info - Data última menstruação:', params.lastMenstruation);
-      const week = calculateGestationWeek(params.lastMenstruation as string);
-      console.log('Gestation Info - Semana calculada:', week);
-      setGestationWeeks(week);
+      const result = calculateGestationWeek(params.lastMenstruation as string);
+      console.log('Gestation Info - Semana calculada:', result.weeks);
+      setGestationWeeks(result.weeks);
     }
   }, [params.lastMenstruation]);
 

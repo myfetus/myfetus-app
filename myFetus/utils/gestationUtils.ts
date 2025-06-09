@@ -31,7 +31,12 @@ export const getLastPeriod = async (): Promise<string | null> => {
   }
 };
 
-export const calculateGestationWeek = (lastPeriod: string): number => {
+type GestationResult = {
+  weeks: number;
+  warning?: string;
+};
+
+export const calculateGestationWeek = (lastPeriod: string): GestationResult => {
   const today = new Date();
   const formattedDate = formatDateToISO(lastPeriod);
   const lastPeriodDate = new Date(formattedDate);
@@ -52,7 +57,15 @@ export const calculateGestationWeek = (lastPeriod: string): number => {
   
   console.log('GestationUtils - Semanas calculadas:', weeks);
   
-  return weeks;
+  const result: GestationResult = {
+    weeks: weeks
+  };
+
+  if (weeks > 42) {
+    result.warning = 'Atenção: A gestação está com mais de 42 semanas. Consulte seu médico imediatamente.';
+  }
+
+  return result;
 };
 
 export const getBabySize = (week: number): string => {
