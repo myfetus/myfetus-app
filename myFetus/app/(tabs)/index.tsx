@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome } from '@expo/vector-icons';
-import { getLastPeriod, calculateGestationWeek, getBabySize, getBabyDescription } from '../../utils/gestationUtils';
+import { getLastPeriod, calculateGestationWeek, getBabySize, getBabyDescription, calculateDPP } from '../../utils/gestationUtils';
 
 const { width, height } = Dimensions.get('window');
 
@@ -64,7 +64,7 @@ export default function HomeScreen() {
   const [gestationWeek, setGestationWeek] = useState(0);
   const [babySize, setBabySize] = useState('');
   const [babyDescription, setBabyDescription] = useState('');
-  const nextAppointment = '15/04/2024';
+  const [dpp, setDPP] = useState('');
 
   useEffect(() => {
     const loadGestationData = async () => {
@@ -76,6 +76,7 @@ export default function HomeScreen() {
         setGestationWeek(result.weeks);
         setBabySize(getBabySize(result.weeks));
         setBabyDescription(getBabyDescription(result.weeks));
+        setDPP(calculateDPP(lastPeriod));
       }
     };
 
@@ -89,49 +90,37 @@ export default function HomeScreen() {
     >
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
-          <Text style={styles.title}>Minha Gestação</Text>
-          <View style={styles.weekContainer}>
-            <Text style={styles.weekText}>Semana {gestationWeek}</Text>
+          <Text style={styles.title}>Meu Bebê</Text>
+          <Text style={styles.subtitle}>Semana {gestationWeek}</Text>
+        </View>
+
+        <View style={styles.imageContainer}>
+          <View style={styles.imageWrapper}>
+            <Image
+              source={getFetusImage(gestationWeek)}
+              style={styles.fetusImage}
+              resizeMode="cover"
+            />
           </View>
         </View>
 
-        <View style={styles.mainCard}>
-          <Text style={styles.mainCardTitle}>Desenvolvimento do Bebê</Text>
-          <View style={styles.babyInfo}>
-            <View style={styles.imageContainer}>
-              <Image
-                source={getFetusImage(gestationWeek)}
-                style={styles.babyImage}
-                resizeMode="contain"
-              />
-            </View>
-            <View style={styles.babyDetails}>
-              <View style={styles.sizeContainer}>
-                <Text style={styles.sizeLabel}>Tamanho atual:</Text>
-                <Text style={styles.babySize}>{babySize}</Text>
-              </View>
-              <Text style={styles.babyDescription}>
-                {babyDescription}
-              </Text>
-            </View>
+        <View style={styles.infoContainer}>
+          <View style={styles.infoCard}>
+            <FontAwesome name="calendar" size={24} color="#20B2AA" />
+            <Text style={styles.infoTitle}>Data Prevista do Parto</Text>
+            <Text style={styles.infoValue}>{dpp}</Text>
+          </View>
+
+          <View style={styles.infoCard}>
+            <FontAwesome name="arrows-alt" size={24} color="#20B2AA" />
+            <Text style={styles.infoTitle}>Tamanho do Bebê</Text>
+            <Text style={styles.infoValue}>{babySize}</Text>
           </View>
         </View>
 
-        <View style={styles.appointmentCard}>
-          <FontAwesome name="calendar" size={24} color="#20B2AA" />
-          <View style={styles.appointmentInfo}>
-            <Text style={styles.appointmentTitle}>Próxima Consulta</Text>
-            <Text style={styles.appointmentDate}>{nextAppointment}</Text>
-          </View>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Dicas da Semana</Text>
-          <View style={styles.tipsContainer}>
-            <Text style={styles.tipText}>• Mantenha-se hidratada</Text>
-            <Text style={styles.tipText}>• Faça exercícios leves</Text>
-            <Text style={styles.tipText}>• Descanse quando necessário</Text>
-          </View>
+        <View style={styles.descriptionContainer}>
+          <Text style={styles.descriptionTitle}>Desenvolvimento</Text>
+          <Text style={styles.descriptionText}>{babyDescription}</Text>
         </View>
       </ScrollView>
     </LinearGradient>
@@ -155,12 +144,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#20B2AA',
   },
-  weekContainer: {
+  subtitle: {
+    fontSize: width * 0.045,
+    color: '#666',
+    marginTop: 5,
+  },
+  infoContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: width * 0.05,
+    marginBottom: height * 0.03,
+  },
+  infoCard: {
     backgroundColor: '#fff',
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginTop: 10,
+    padding: 15,
+    borderRadius: 15,
+    alignItems: 'center',
+    width: width * 0.4,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -170,146 +170,68 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
-  weekText: {
-    fontSize: width * 0.05,
-    color: '#20B2AA',
-    fontWeight: '600',
+  infoTitle: {
+    fontSize: width * 0.035,
+    color: '#666',
+    marginTop: 10,
+    textAlign: 'center',
   },
-  mainCard: {
+  infoValue: {
+    fontSize: width * 0.04,
+    color: '#20B2AA',
+    fontWeight: 'bold',
+    marginTop: 5,
+    textAlign: 'center',
+  },
+  descriptionContainer: {
     backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 25,
-    marginHorizontal: 20,
-    marginBottom: 20,
+    margin: width * 0.05,
+    padding: 20,
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  descriptionTitle: {
+    fontSize: width * 0.05,
+    fontWeight: 'bold',
+    color: '#20B2AA',
+    marginBottom: 10,
+  },
+  descriptionText: {
+    fontSize: width * 0.035,
+    color: '#666',
+    lineHeight: 20,
+  },
+  imageContainer: {
+    alignItems: 'center',
+    marginVertical: height * 0.03,
+    paddingHorizontal: width * 0.05,
+  },
+  imageWrapper: {
+    width: width * 0.85,
+    height: width * 0.85,
+    borderRadius: width * 0.425,
+    backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.15,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  mainCardTitle: {
-    fontSize: width * 0.055,
-    fontWeight: 'bold',
-    color: '#20B2AA',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  babyInfo: {
-    alignItems: 'center',
-  },
-  imageContainer: {
-    width: width * 0.7,
-    height: width * 0.7,
-    backgroundColor: '#f8f8f8',
-    borderRadius: width * 0.35,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
     overflow: 'hidden',
+    borderWidth: 4,
+    borderColor: '#fff',
   },
-  babyImage: {
-    width: width * 0.95,
-    height: width * 0.95,
-    borderRadius: width * 0.325,
-  },
-  babyDetails: {
+  fetusImage: {
     width: '100%',
-    alignItems: 'center',
-  },
-  sizeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-    backgroundColor: '#f0f9ff',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 15,
-  },
-  sizeLabel: {
-    fontSize: width * 0.04,
-    color: '#666',
-    marginRight: 8,
-  },
-  babySize: {
-    fontSize: width * 0.045,
-    fontWeight: '600',
-    color: '#20B2AA',
-  },
-  babyDescription: {
-    fontSize: width * 0.035,
-    color: '#666',
-    lineHeight: 22,
-    textAlign: 'center',
-  },
-  appointmentCard: {
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 20,
-    marginHorizontal: 20,
-    marginBottom: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  appointmentInfo: {
-    marginLeft: 15,
-  },
-  appointmentTitle: {
-    fontSize: width * 0.035,
-    color: '#666',
-    marginBottom: 4,
-  },
-  appointmentDate: {
-    fontSize: width * 0.04,
-    fontWeight: '600',
-    color: '#20B2AA',
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 20,
-    marginHorizontal: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  cardTitle: {
-    fontSize: width * 0.05,
-    fontWeight: 'bold',
-    color: '#20B2AA',
-    marginBottom: 15,
-  },
-  tipsContainer: {
-    marginTop: 5,
-  },
-  tipText: {
-    fontSize: width * 0.035,
-    color: '#666',
-    marginBottom: 8,
-    lineHeight: 20,
+    height: '100%',
   },
 });

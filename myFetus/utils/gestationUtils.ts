@@ -13,10 +13,9 @@ const formatDateToISO = (date: string): string => {
   return `${year}-${month}-${day}`;
 };
 
-export const saveLastPeriod = async (date: string) => {
+export const saveLastPeriod = async (date: string): Promise<void> => {
   try {
-    const formattedDate = formatDateToISO(date);
-    await AsyncStorage.setItem(LAST_PERIOD_KEY, formattedDate);
+    await AsyncStorage.setItem(LAST_PERIOD_KEY, date);
   } catch (error) {
     console.error('Erro ao salvar data da última menstruação:', error);
   }
@@ -66,6 +65,22 @@ export const calculateGestationWeek = (lastPeriod: string): GestationResult => {
   }
 
   return result;
+};
+
+export const calculateDPP = (lastPeriod: string): string => {
+  const formattedDate = formatDateToISO(lastPeriod);
+  const lastPeriodDate = new Date(formattedDate);
+  
+  // Adiciona 280 dias (40 semanas) à data da última menstruação
+  const dpp = new Date(lastPeriodDate);
+  dpp.setDate(dpp.getDate() + 280);
+  
+  // Formata a data para o padrão brasileiro (DD/MM/YYYY)
+  const day = dpp.getDate().toString().padStart(2, '0');
+  const month = (dpp.getMonth() + 1).toString().padStart(2, '0');
+  const year = dpp.getFullYear();
+  
+  return `${day}/${month}/${year}`;
 };
 
 export const getBabySize = (week: number): string => {
