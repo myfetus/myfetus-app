@@ -10,14 +10,54 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome } from '@expo/vector-icons';
 // import { calculateGestationWeek } from '../utils/gestationWeekCalculator';
-import { getChecklistForWeek, ChecklistItem } from '../data/checklistData';
+import { getChecklistForWeek, ChecklistItem, checklistData } from '../data/checklistData';
 import { getLastPeriod, calculateGestationWeek, getBabySize, getBabyDescription } from '../../utils/gestationUtils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
+const TRIMESTER_RANGES = {
+  1: { start: 1, end: 13 },
+  2: { start: 14, end: 26 },
+  3: { start: 27, end: 40 }
+};
+
+const CHECKLIST_STATE_KEY = '@myFetus:checklistState';
+
 export default function ChecklistScreen() {
   const [currentWeek, setCurrentWeek] = useState(0);
+  const [currentTrimester, setCurrentTrimester] = useState(1);
   const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
+  const [savedState, setSavedState] = useState<Record<string, boolean>>({});
+
+  // Carrega o estado salvo do checklist
+  const loadSavedState = async () => {
+    try {
+      const savedState = await AsyncStorage.getItem(CHECKLIST_STATE_KEY);
+      if (savedState) {
+        const parsedState = JSON.parse(savedState);
+        setSavedState(parsedState);
+        return parsedState;
+      }
+    } catch (error) {
+      console.error('Erro ao carregar estado do checklist:', error);
+    }
+    return {};
+  };
+
+  // Salva o estado atual do checklist
+  const saveState = async (itemId: string, completed: boolean) => {
+    try {
+      const newState = {
+        ...savedState,
+        [itemId]: completed
+      };
+      setSavedState(newState);
+      await AsyncStorage.setItem(CHECKLIST_STATE_KEY, JSON.stringify(newState));
+    } catch (error) {
+      console.error('Erro ao salvar estado do checklist:', error);
+    }
+  };
 
   useEffect(() => {
     const loadGestationData = async () => {
@@ -27,22 +67,59 @@ export default function ChecklistScreen() {
         const result = calculateGestationWeek(lastPeriod);
         console.log('Checklist - Semana calculada:', result.weeks);
         setCurrentWeek(result.weeks);
-        const weekChecklist = getChecklistForWeek(result.weeks);
-        if (weekChecklist) {
-          setChecklistItems(weekChecklist.items.map(item => ({ ...item, completed: false })));
-        }
+        
+        // Determina o trimestre atual baseado na semana
+        const trimester = result.weeks <= 13 ? 1 : result.weeks <= 26 ? 2 : 3;
+        setCurrentTrimester(trimester);
+        
+        // Carrega o estado salvo primeiro
+        await loadSavedState();
+        
+        // Carrega os itens do trimestre atual
+        await loadTrimesterItems(trimester);
       }
     };
 
     loadGestationData();
   }, []);
 
-  const toggleItem = (id: string) => {
-    setChecklistItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id ? { ...item, completed: !item.completed } : item
-      )
-    );
+  const loadTrimesterItems = async (trimester: number) => {
+    const range = TRIMESTER_RANGES[trimester as keyof typeof TRIMESTER_RANGES];
+    const items: ChecklistItem[] = [];
+    
+    // Filtra os checklists que estão dentro do trimestre atual
+    const trimesterChecklists = checklistData.filter(checklist => {
+      const [start, end] = checklist.weekRange.split("-").map(Number);
+      return start >= range.start && end <= range.end;
+    });
+    
+    // Adiciona todos os itens dos checklists do trimestre
+    trimesterChecklists.forEach(checklist => {
+      items.push(...checklist.items.map(item => ({
+        ...item,
+        completed: savedState[item.id] || false
+      })));
+    });
+    
+    setChecklistItems(items);
+  };
+
+  const changeTrimester = async (trimester: number) => {
+    setCurrentTrimester(trimester);
+    await loadTrimesterItems(trimester);
+  };
+
+  const toggleItem = async (id: string) => {
+    const newItems = checklistItems.map(item => {
+      if (item.id === id) {
+        const newCompleted = !item.completed;
+        // Salva o estado imediatamente
+        saveState(id, newCompleted);
+        return { ...item, completed: newCompleted };
+      }
+      return item;
+    });
+    setChecklistItems(newItems);
   };
 
   const completedCount = checklistItems.filter(item => item.completed).length;
@@ -56,7 +133,27 @@ export default function ChecklistScreen() {
       style={styles.container}
     >
       <View style={styles.header}>
-        <Text style={styles.title}>Checklist da Semana {currentWeek}</Text>
+        <Text style={styles.title}>Checklist do {currentTrimester}º Trimestre</Text>
+        <View style={styles.trimesterNavigation}>
+          <TouchableOpacity
+            style={[styles.trimesterButton, currentTrimester === 1 && styles.activeTrimester]}
+            onPress={() => changeTrimester(1)}
+          >
+            <Text style={[styles.trimesterButtonText, currentTrimester === 1 && styles.activeTrimesterText]}>1º</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.trimesterButton, currentTrimester === 2 && styles.activeTrimester]}
+            onPress={() => changeTrimester(2)}
+          >
+            <Text style={[styles.trimesterButtonText, currentTrimester === 2 && styles.activeTrimesterText]}>2º</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.trimesterButton, currentTrimester === 3 && styles.activeTrimester]}
+            onPress={() => changeTrimester(3)}
+          >
+            <Text style={[styles.trimesterButtonText, currentTrimester === 3 && styles.activeTrimesterText]}>3º</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView style={styles.scrollView}>
@@ -125,6 +222,32 @@ const styles = StyleSheet.create({
     fontSize: width * 0.05,
     fontWeight: 'bold',
     color: '#20B2AA',
+    marginBottom: 10,
+  },
+  trimesterNavigation: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  trimesterButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    marginHorizontal: 5,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#20B2AA',
+  },
+  activeTrimester: {
+    backgroundColor: '#20B2AA',
+  },
+  trimesterButtonText: {
+    fontSize: width * 0.04,
+    color: '#20B2AA',
+    fontWeight: '600',
+  },
+  activeTrimesterText: {
+    color: '#fff',
   },
   scrollView: {
     flex: 1,
